@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>贪吃蛇</title>
+</head>
+
+<body>
+ <canvas id="canvas"></canvas>   <!-- 我们要操作的canvas -->
+ <input type="button" value="开始游戏" /><!-- 开始游戏按钮 -->
+<script>
+//获取元素
+var canvas = document.getElementById("canvas"); //找到我们要操作的canvas
+var context = canvas.getContext("2d"); //规定在canvas上操作的环境为2d
+var but = document.getElementsByTagName("input")[0]; //找到开始按钮
+//初始化
+canvas.width = 400; //定义canvas宽度
+canvas.height = 400; //定义canvas高度
+canvas.style.border = "1px solid #eee"; //定义canvas边框
+var times = 200; //默认时间200毫秒
+var long = 10; //蛇身相对于步长的个数
+var x = y =8;  //蛇的初始坐标
+var direction = 2;  // 1 上  2 右  3 下 0  左
+var size = 8;  //蛇每次移动的长度（步长）
+var map  = []; //用来记录蛇每次移动的坐标 
+var foodx = 0;  //食物的初始X轴坐标
+var foody = 0;  //食物的初始y轴坐标
+var onOff = true; 
+var foodT = true;
+var timer = null;
+function star(){
+
+    //根据方向控制蛇的坐标变化
+    switch(direction){
+
+        case 1: y = y - size; break; //上
+        case 2: x = x + size; break; //右
+        case 3: y = y + size; break; //下
+        case 0: x = x - size; break; //左
+    }
+
+    //判断蛇的坐标是否超出canvas边界，超出则出现碰壁提示，游戏结束
+    if(x>400 || x<0 || y>400 || y<0){
+
+        alert("你碰壁挂了！继续努力吧……");
+        window.location.reload();   
+    }
+
+    //判断蛇有没有碰到自己，碰到自己游戏结束 
+    for(var i=0; i<map.length; i++){
+        if(parseInt( map[i].x ) == x && parseInt( map[i].y ) == y){
+            alert("你碰到自己挂了！继续努力吧……");
+            window.location.reload(); //重新载入
+        }
+    }
+
+    //绘制蛇
+    if(map.length>long){ 
+        var cl = map.shift();
+        context.clearRect(cl['x'],cl['y'],size,size);
+    }
+    map.push({'x':x,'y':y}); 
+    context.fillStyle = "#00f"; //填充蛇的颜色
+    context.fillRect(x,y,size,size); //绘制蛇
+
+
+    //判断食物坐标等于蛇的坐标时（蛇吃掉食物）
+    if(foodx*8 == x && foody*8 == y ){
+        food(); //再次绘制食物
+        long++; //蛇的长度增加
+        times = times - 10; //速度加快
+        clearInterval(timer);
+        onOff = true;
+        setTimeout(goto,times); //开始新的一轮
+    }
+
+
+}
+
+//确定食物随机显示坐标，绘制食物
+function food(){
+    foodx = Math.ceil(Math.random()*40); //食物的X轴随机坐标
+    foody = Math.ceil(Math.random()*40); //食物的Y轴随机坐标    
+    context.fillStyle = "#f00"; //食物的填充颜色 
+    context.fillRect(foodx*8,foody*8,8,8); //绘制食物
+
+}
+//开始游戏
+function goto(){
+    if(onOff){
+        timer = setInterval(star,times);
+        onOff = false;
+    }
+    if(foodT){
+        food();
+        foodT = false;
+    }   
+}
+//点击按钮开始游戏开始
+but.onclick = goto; //点击按钮，开始游戏
+
+//监听按下方向键，获得蛇前进的方向
+document.onkeydown = function(ev){
+    var ev = ev || event;
+    var cod = ev.keyCode - 37;
+
+    switch(cod){
+        case 1: direction = 1; break; //向上
+        case 2: direction = 2; break; //向右
+        case 3: direction = 3; break; //向下
+        case 0: direction = 0; break; //向左
+    }   
+}
+</script>
+</body>
+</html>
